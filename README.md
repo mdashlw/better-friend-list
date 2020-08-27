@@ -6,16 +6,18 @@ This is a simple mod for Hypixel Network that provides a better look for friends
 
 ## Getting Started
 
-##### Requirements
+### Prerequisites
 
 * Minecraft 1.8.9
 * Forge 11.15.1.2318 (latest)
 
-##### Steps
+### Installation
 
-1. Download the jar from [latest release](https://github.com/mdashlw/better-friend-list/releases/latest).
-2. Drop it to `.minecraft/mods`.
-3. Join Hypixel and run `/friend list` (or `/fl`).
+Download the jar from [latest release](https://github.com/mdashlw/better-friend-list/releases/latest) and drop it to `.minecraft/mods` folder.
+
+### Usage
+
+Join Hypixel and run `/friend list` (or `/fl`).
 
 ## License
 
