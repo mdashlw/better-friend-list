@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package ru.mdashlw.enelix.updater;
+package ru.mdashlw.hypixel.bfl.util;
 
 import java.io.IOException;
 import java.net.URL;
@@ -36,20 +36,18 @@ import net.minecraft.util.IChatComponent;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ru.mdashlw.enelix.util.OneTimeJoinMessage;
 
 public final class Updater {
 
-  public static final Logger LOGGER = LogManager.getLogger();
+  private static final Logger LOGGER = LogManager.getLogger();
 
-  private final ModInfo modInfo;
+  private final String name;
   private final String currentVersion;
   private final String changelogUrl;
   private final String downloadUrl;
 
-  public Updater(final ModInfo modInfo, final String currentVersion, final String changelogUrl,
-      final String downloadUrl) {
-    this.modInfo = modInfo;
+  public Updater(final String name, final String currentVersion, final String changelogUrl, final String downloadUrl) {
+    this.name = name;
     this.currentVersion = currentVersion;
     this.changelogUrl = changelogUrl;
     this.downloadUrl = downloadUrl;
@@ -60,66 +58,49 @@ public final class Updater {
   }
 
   public void check() {
-    if (this.currentVersion.endsWith("-dev")) {
-      Updater.LOGGER.info("{} v{} is a development version", this.modInfo.getName(), this.currentVersion);
-
-      final IChatComponent component = new ChatComponentText(
-          "§cWarning: §eYou are using a development version of " + this.modInfo.getName() +
-              ".\n§fPlease install stable version unless you know what you are doing.\n")
-          .appendSibling(new ChatComponentText("§6>> §9Download Stable Here §6<<")
-              .setChatStyle(new ChatStyle()
-                  .setChatHoverEvent(new HoverEvent(Action.SHOW_TEXT,
-                      new ChatComponentText("§7Click here to download!")))
-                  .setChatClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, this.downloadUrl))));
-
-      new OneTimeJoinMessage(component).register();
-      return;
-    }
-
     final String content;
 
     try {
       content = IOUtils.toString(new URL(this.changelogUrl));
     } catch (final IOException exception) {
-      Updater.LOGGER.error("Failed to check for updates", exception);
+      Updater.LOGGER.error("Failed to check for updates.", exception);
       return;
     }
 
     final String[] lines = content.split("\n");
 
     if (lines[0].equals(this.currentVersion)) {
-      Updater.LOGGER.info("{} is up to date: {}", this.modInfo.getName(), this.currentVersion);
+      Updater.LOGGER.info("{} is up to date: {}", this.name, this.currentVersion);
       return;
     }
 
-    final IChatComponent component = new ChatComponentText("§eAn update is available for ")
-        .appendSibling(new ChatComponentText(this.modInfo.getName())
-            .setChatStyle(new ChatStyle()
-                .setChatHoverEvent(new HoverEvent(Action.SHOW_TEXT,
-                    new ChatComponentText("§9" + this.modInfo.getName() + " §bv" + this.currentVersion +
-                        " §7by " + this.modInfo.getAuthor())))))
-        .appendText("§e. \n")
-        .appendSibling(new ChatComponentText("§6>> §9Download Here §6<<")
-            .setChatStyle(new ChatStyle()
-                .setChatHoverEvent(new HoverEvent(Action.SHOW_TEXT,
-                    new ChatComponentText("§7Click here to download!")))
-                .setChatClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, this.downloadUrl))));
+    final String latestVersion = lines[0];
 
-    final StringBuilder changelogBuilder = new StringBuilder("\n\n§6Changelog:\n");
+    final IChatComponent component = new ChatComponentText(
+        "§9----------------------- §6" + this.name + " §9-----------------------\n")
+        .appendText("§fA new update is available: §cv" + this.currentVersion + " §f-> §av" + latestVersion + "§f.\n\n")
+        .appendSibling(new ChatComponentText("§8>>> §bDownload Here §8<<<")
+            .setChatStyle(new ChatStyle()
+                .setChatHoverEvent(new HoverEvent(Action.SHOW_TEXT,
+                    new ChatComponentText("§7Click here to download the new version!")))
+                .setChatClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, this.downloadUrl))));
+    final StringBuilder changelogBuilder = new StringBuilder("\n\n§dChangelog:\n");
 
     for (final String line : lines) {
-      if (this.currentVersion.equals(line)) {
-        return;
+      if (line.equals(this.currentVersion)) {
+        break;
       }
 
       if (line.charAt(0) == '-') {
-        changelogBuilder.append("§7- ").append("§a").append(line.substring(2)).append('\n');
+        changelogBuilder.append("§8- ").append("§7").append(line.substring(2)).append('\n');
       } else {
-        changelogBuilder.append("§8> ").append("§b").append(line).append('\n');
+        changelogBuilder.append("§8> ").append("§ev").append(line).append('\n');
       }
     }
 
-    component.appendText(changelogBuilder.toString());
+    component
+        .appendText(changelogBuilder.toString())
+        .appendText("\n§9------------------------------------------------------");
 
     new OneTimeJoinMessage(component).register();
   }
@@ -128,8 +109,8 @@ public final class Updater {
     ForkJoinPool.commonPool().execute(this::check);
   }
 
-  public ModInfo getModInfo() {
-    return this.modInfo;
+  public String getName() {
+    return this.name;
   }
 
   public String getCurrentVersion() {
@@ -146,13 +127,13 @@ public final class Updater {
 
   public static final class Builder {
 
-    private ModInfo modInfo;
+    private String name;
     private String currentVersion;
     private String changelogUrl;
     private String downloadUrl;
 
-    public Builder modInfo(final ModInfo modInfo) {
-      this.modInfo = modInfo;
+    public Builder name(final String name) {
+      this.name = name;
       return this;
     }
 
@@ -172,7 +153,7 @@ public final class Updater {
     }
 
     public Updater build() {
-      return new Updater(this.modInfo, this.currentVersion, this.changelogUrl, this.downloadUrl);
+      return new Updater(this.name, this.currentVersion, this.changelogUrl, this.downloadUrl);
     }
   }
 }

@@ -22,31 +22,42 @@
  * SOFTWARE.
  */
 
-package ru.mdashlw.enelix.updater;
+package ru.mdashlw.hypixel.bfl.util;
 
-public final class ModInfo {
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.util.IChatComponent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-  private final String name;
-  private final String author;
+public final class OneTimeJoinMessage {
 
-  public ModInfo(final String name, final String author) {
-    this.name = name;
-    this.author = author;
+  private final IChatComponent component;
+
+  public OneTimeJoinMessage(final IChatComponent component) {
+    this.component = component;
   }
 
-  public String getName() {
-    return this.name;
+  @SubscribeEvent
+  public void onJoinWorld(final EntityJoinWorldEvent event) {
+    if (Minecraft.getMinecraft().isSingleplayer()) {
+      return;
+    }
+
+    if (!(event.entity instanceof EntityPlayerSP)) {
+      return;
+    }
+
+    event.entity.addChatMessage(this.component);
+    MinecraftForge.EVENT_BUS.unregister(this);
   }
 
-  public String getAuthor() {
-    return this.author;
+  public void register() {
+    MinecraftForge.EVENT_BUS.register(this);
   }
 
-  @Override
-  public String toString() {
-    return "ModInfo{" +
-        "name='" + this.name + '\'' +
-        ", author='" + this.author + '\'' +
-        '}';
+  public IChatComponent getComponent() {
+    return this.component;
   }
 }

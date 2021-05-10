@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package ru.mdashlw.bfl.listeners;
+package ru.mdashlw.hypixel.bfl.listeners;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,8 +36,6 @@ import net.minecraft.util.ChatStyle;
 import net.minecraft.util.IChatComponent;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import org.apache.commons.lang3.StringUtils;
-import ru.mdashlw.enelix.util.ChatUtils;
 
 public final class ChatListener {
 
@@ -49,7 +47,7 @@ public final class ChatListener {
 
   @SubscribeEvent
   public void onChatMessageReceived(final ClientChatReceivedEvent event) {
-    if (event.type != (byte) 0) {
+    if (event.type != 0) {
       return;
     }
 
@@ -61,7 +59,7 @@ public final class ChatListener {
 
     event.setCanceled(true);
 
-    final EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+    final EntityPlayerSP thePlayer = Minecraft.getMinecraft().thePlayer;
     final String[] lines = text.split("\n");
 
     Matcher match;
@@ -69,9 +67,11 @@ public final class ChatListener {
 
     for (final String line : lines) {
       if (line.isEmpty()) {
-        // skip empty lines
-      } else if (line.charAt(0) == '-') {
-        ChatUtils.printBreakLine();
+        continue;
+      }
+
+      if (line.charAt(0) == '-') {
+        thePlayer.addChatMessage(new ChatComponentText("§9§m" + line));
       } else if (!hadHeader && (match = ChatListener.HEADER_PATTERN.matcher(line)).find()) {
         hadHeader = true;
 
@@ -82,41 +82,40 @@ public final class ChatListener {
         final IChatComponent rightArrow;
 
         if (currentPage == 1) {
-          leftArrow = new ChatComponentText("§8<");
+          leftArrow = new ChatComponentText("§8<<");
         } else {
           final int previousPage = currentPage - 1;
 
-          leftArrow = new ChatComponentText("§9<")
+          leftArrow = new ChatComponentText("§9<<")
               .setChatStyle(new ChatStyle()
                   .setChatHoverEvent(new HoverEvent(Action.SHOW_TEXT,
-                      new ChatComponentText("§7Page " + previousPage)))
+                      new ChatComponentText("§7View page " + previousPage)))
                   .setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/fl " + previousPage)));
         }
 
         if (currentPage == maximumPage) {
-          rightArrow = new ChatComponentText("§8>");
+          rightArrow = new ChatComponentText("§8>>");
         } else {
           final int nextPage = currentPage + 1;
 
-          rightArrow = new ChatComponentText("§9>")
+          rightArrow = new ChatComponentText("§9>>")
               .setChatStyle(new ChatStyle()
                   .setChatHoverEvent(new HoverEvent(Action.SHOW_TEXT,
-                      new ChatComponentText("§7Page " + nextPage)))
+                      new ChatComponentText("§7View page " + nextPage)))
                   .setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/fl " + nextPage)));
         }
 
-        final IChatComponent component = new ChatComponentText(
-            StringUtils.repeat(' ', ChatUtils.getBreakDashCount() / 2))
+        final IChatComponent component = new ChatComponentText("                       ")
             .appendSibling(leftArrow)
             .appendText(" §6Friends (" + currentPage + '/' + maximumPage + ") ")
             .appendSibling(rightArrow);
 
-        player.addChatMessage(component);
+        thePlayer.addChatMessage(component);
       } else if ((match = ChatListener.OFFLINE_FRIEND_PATTERN.matcher(line)).matches()) {
         final String name = match.group("name");
         final IChatComponent component = new ChatComponentText(" §c\u25A0 " + name);
 
-        player.addChatMessage(component);
+        thePlayer.addChatMessage(component);
       } else if ((match = ChatListener.ONLINE_FRIEND_PATTERN.matcher(line)).matches()) {
         final String name = match.group("name");
         final String game = match.group("game");
@@ -125,7 +124,9 @@ public final class ChatListener {
         final String cleanName = name.substring(2);
         final String formattedGame;
 
-        if (game.endsWith("Game")) {
+        if (game.startsWith("house ")) {
+          formattedGame = "House §b§l" + game.substring(6);
+        } else if (game.endsWith("Game")) {
           formattedGame = game.substring(0, game.length() - 5);
         } else if (game.equals("replay")) {
           formattedGame = "Replay";
@@ -149,7 +150,7 @@ public final class ChatListener {
           component.appendText(" §e" + formattedGame + ": " + mode);
         }
 
-        player.addChatMessage(component);
+        thePlayer.addChatMessage(component);
       } else if ((match = ChatListener.IDLE_FRIEND_PATTERN.matcher(line)).matches()) {
         final String name = match.group("name");
         final String cleanName = name.substring(2);
@@ -163,9 +164,9 @@ public final class ChatListener {
                         "/w " + cleanName + ' '))))
             .appendText(" §8Idle");
 
-        player.addChatMessage(component);
+        thePlayer.addChatMessage(component);
       } else {
-        player.addChatMessage(new ChatComponentText(line));
+        thePlayer.addChatMessage(new ChatComponentText(line));
       }
     }
   }
