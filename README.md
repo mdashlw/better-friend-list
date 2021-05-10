@@ -2,7 +2,7 @@
 
 This is a simple mod for Hypixel Network that provides a better look for friends list.
 
-![](https://cdn.discordapp.com/attachments/668319827764576257/748455902830526504/unknown.png)
+![image](https://user-images.githubusercontent.com/34678047/117679381-e50f0e00-b1b8-11eb-89dc-d466c9ccbf84.png)
 
 ## Getting Started
 
