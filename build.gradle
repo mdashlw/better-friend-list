@@ -20,7 +20,7 @@ plugins {
 apply plugin: 'net.minecraftforge.gradle.forge'
 
 group 'ru.mdashlw.hypixel.bfl'
-version '1.1.0'
+version '1.1.1'
 archivesBaseName = 'BetterFriendList'
 
 sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
