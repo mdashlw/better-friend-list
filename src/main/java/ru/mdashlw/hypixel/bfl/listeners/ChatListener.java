@@ -42,7 +42,7 @@ public final class ChatListener {
   public static final Pattern HEADER_PATTERN = Pattern.compile("(?:<< )?§6Friends \\(Page (\\d+) of (\\d+)\\)(?: >>)?");
   public static final Pattern OFFLINE_FRIEND_PATTERN = Pattern.compile("(?<name>§.\\w+) is currently offline");
   public static final Pattern ONLINE_FRIEND_PATTERN = Pattern
-      .compile("(?<name>§.\\w+) is (?:in|watching) (?:an? |the )?(?<game>[^-\n]+)(?:- (?<mode>[\\w\\s']+))?");
+      .compile("(?<name>§.\\w+) is (?:in|watching|playing) (?:an? |the )?(?<game>[^-]+)(?:- (?<mode>[\\w\\s']+))?");
   public static final Pattern IDLE_FRIEND_PATTERN = Pattern.compile("(?<name>§.\\w+) is idle in Limbo");
 
   @SubscribeEvent
